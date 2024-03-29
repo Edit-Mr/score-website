@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易成績查詢</title>
+    <style>
+        :root {
+            /* nord theme */
+            --nord0: #2E3440;
+            --nord1: #3B4252;
+            --nord2: #434C5E;
+            --nord3: #4C566A;
+            --nord4: #D8DEE9;
+            --nord5: #E5E9F0;
+            --nord6: #ECEFF4;
+            --nord7: #8FBCBB;
+            --nord8: #88C0D0;
+            --nord9: #81A1C1;
+            --nord10: #5E81AC;
+            --nord11: #BF616A;
+            --nord12: #D08770;
+            --nord13: #EBCB8B;
+            --nord14: #A3BE8C;
+            --nord15: #B48EAD;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--nord0);
+            color: var(--nord4);
+            font-family: system-ui, -apple-system;
+            text-align: center;
+            margin: auto;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        input {
+            margin: 10px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--nord2);
+            color: var(--nord4);
+        }
+
+        button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--nord7);
+            color: var(--nord0);
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: var(--nord8);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            padding: 5px;
+            margin: 5px;
+            background-color: var(--nord3);
+            border-radius: 5px;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>簡易成績查詢</h1>
+    <label for="idNumber">ID</label>
+    <input type="text" id="idNumber"><br>
+    <label for="password">密碼</label>
+    <input type="password" id="password"><br>
+    <button onclick="check()">查詢成績</button>
+    <div id="scores"></div>
+
+    <script>
+        const idNumber = document.getElementById('idNumber');
+        const password = document.getElementById('password');
+        const submit = document.querySelector('button');
+
+        const check = () => {
+            console.log(idNumber.value, password.value)
+            // 發送 POST 請求以獲取成績並將其附加到 HTML 中
+            fetch('scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    idNumber: idNumber.value,
+                    password: password.value
+                })
+            })
+                // 檢查響應是否為 401，如果是，則使用響應的問題文本警告用戶
+                .then(response => {
+                    if (response.status === 401) {
+                        return response.text().then(text => {
+                            alert(text);
+                            throw new Error(text);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log(data);
+                    // 將 JSON 轉換為列表
+                    const scores = JSON.parse(data);
+                    const scoresDiv = document.getElementById('scores');
+                    // 清空 scoresDiv
+                    scoresDiv.innerHTML = '<h2>成績</h2>';
+                    // 創建 ul 元素
+                    const ul = document.createElement('ul');
+                    // 將 ul 附加到 body
+                    scoresDiv.appendChild(ul);
+                    // 遍歷成績
+                    scores.forEach(score => {
+                        // 創建 li 元素
+                        const li = document.createElement('li');
+                        // 設置 li 元素的內容
+                        li.innerText = `${score.title}: ${score.score}`;
+                        // 將 li 附加到 ul
+                        ul.appendChild(li);
+                    });
+
+                })
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score History</title>
+</head>
+<body>
+    <h1>Score History</h1>
+    <div id="scoreList"></div>
+
+    <script>
+        // Function to fetch score history via AJAX
+        function fetchScoreHistory() {
+            const idNumber = localStorage.getItem('idNumber');
+            const password = localStorage.getItem('password');
+
+            // Make a POST request to the server to fetch score history
+            fetch('/scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `idNumber=${idNumber}&password=${password}`
+            })
+            .then(response => response.json())
+            .then(scores => {
+                const scoreList = document.getElementById('scoreList');
+                scoreList.innerHTML = ''; // Clear previous scores
+
+                // Display scores
+                scores.forEach(score => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.textContent = `Score 1: ${score.score1}, Score 2: ${score.score2}`;
+                    scoreList.appendChild(scoreItem);
+                });
+            })
+            .catch(error => console.error('Error fetching score history:', error));
+        }
+
+        // Fetch score history when the page loads
+        fetchScoreHistory();
+    </script>
+</body>
+</html>
